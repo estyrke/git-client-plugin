@@ -274,6 +274,11 @@ public class JGitAPIImpl extends LegacyCompatibleGitAPIImpl {
                 return this;
             }
 
+			public CheckoutCommand withLFS() {
+				listener.getLogger().println("[WARNING] JGit doesn't support LFS checkout. This flag is ignored");
+				return this;
+			}
+			
             public void execute() throws GitException, InterruptedException {
 
                 if(! sparseCheckoutPaths.isEmpty()) {
@@ -556,6 +561,11 @@ public class JGitAPIImpl extends LegacyCompatibleGitAPIImpl {
                 return this;
             }
 
+			public org.jenkinsci.plugins.gitclient.FetchCommand withLFS() {
+				listener.getLogger().println("[WARNING] JGit doesn't support LFS fetch. This flag is ignored");
+				return this;
+			}
+			
             public void execute() throws GitException, InterruptedException {
                 try (Repository repo = getRepository()) {
                     Git git = git(repo);

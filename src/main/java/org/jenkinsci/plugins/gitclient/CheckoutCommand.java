@@ -49,4 +49,11 @@ public interface CheckoutCommand extends GitCommand {
      * @return a {@link org.jenkinsci.plugins.gitclient.CheckoutCommand} object.
      */
     CheckoutCommand timeout(Integer timeout);
+    
+    /**
+     * Enable LFS pull after init/fetch
+     *
+     * @return a {@link org.jenkinsci.plugins.gitclient.CloneCommand} object.
+     */
+    CheckoutCommand withLFS();
 }

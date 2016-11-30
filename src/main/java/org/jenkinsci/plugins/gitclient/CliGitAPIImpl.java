@@ -250,7 +250,8 @@ public class CliGitAPIImpl extends LegacyCompatibleGitAPIImpl {
             public Integer timeout;
             public boolean tags = true;
             public Integer depth = 1;
-
+            public boolean withLFS = false;
+            
             public FetchCommand from(URIish remote, List<RefSpec> refspecs) {
                 this.url = remote;
                 this.refspecs = refspecs;
@@ -281,12 +282,18 @@ public class CliGitAPIImpl extends LegacyCompatibleGitAPIImpl {
                 this.depth = depth;
                 return this;
             }
+            
+            public FetchCommand withLFS() {
+            	this.withLFS = true;
+            	return this;
+            }
 
             public void execute() throws GitException, InterruptedException {
                 listener.getLogger().println(
                         "Fetching upstream changes from " + url);
 
                 ArgumentListBuilder args = new ArgumentListBuilder();
+                
                 args.add("fetch");
                 args.add(tags ? "--tags" : "--no-tags");
                 if (isAtLeastVersion(1,7,1,0))
@@ -313,6 +320,15 @@ public class CliGitAPIImpl extends LegacyCompatibleGitAPIImpl {
                 warnIfWindowsTemporaryDirNameHasSpaces();
 
                 launchCommandWithCredentials(args, workspace, cred, url, timeout);
+
+                if (withLFS) {
+                	ArgumentListBuilder lfsArgs = new ArgumentListBuilder();
+                
+                	lfsArgs.add("lfs");
+                	lfsArgs.add("fetch");
+
+                	launchCommandWithCredentials(lfsArgs, workspace, cred, url, timeout);
+                }
             }
         };
     }
@@ -1935,6 +1951,7 @@ public class CliGitAPIImpl extends LegacyCompatibleGitAPIImpl {
             public boolean deleteBranch;
             public List<String> sparseCheckoutPaths = Collections.emptyList();
             public Integer timeout;
+            public boolean withLFS;
 
             public CheckoutCommand ref(String ref) {
                 this.ref = ref;
@@ -1959,6 +1976,11 @@ public class CliGitAPIImpl extends LegacyCompatibleGitAPIImpl {
             public CheckoutCommand timeout(Integer timeout) {
                 this.timeout = timeout;
                 return this;
+            }
+            
+            public CheckoutCommand withLFS() {
+            	this.withLFS = true;
+            	return this;
             }
 
             /* Allow test of index.lock cleanup when checkout is interrupted */
@@ -2014,6 +2036,16 @@ public class CliGitAPIImpl extends LegacyCompatibleGitAPIImpl {
                     }
                     args.add(ref);
                     launchCommandIn(args, workspace, environment, timeout);
+
+                    if (withLFS) {
+                    	ArgumentListBuilder lfsArgs = new ArgumentListBuilder();
+                    
+                    	lfsArgs.add("lfs");
+                    	lfsArgs.add("checkout");
+
+                    	launchCommandIn(lfsArgs, workspace, environment, timeout);
+                    }
+
                 } catch (GitException e) {
                     if (Pattern.compile("index\\.lock").matcher(e.getMessage()).find()) {
                         throw new GitLockFailedException("Could not lock repository. Please try again", e);
