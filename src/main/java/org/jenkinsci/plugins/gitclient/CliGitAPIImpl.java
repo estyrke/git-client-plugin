@@ -326,7 +326,11 @@ public class CliGitAPIImpl extends LegacyCompatibleGitAPIImpl {
                 
                 	lfsArgs.add("lfs");
                 	lfsArgs.add("fetch");
-
+                	lfsArgs.add(url);
+                    if (refspecs != null)
+                        for (RefSpec rs: refspecs)
+                            if (rs != null)
+                                args.add(rs.toString());
                 	launchCommandWithCredentials(lfsArgs, workspace, cred, url, timeout);
                 }
             }
